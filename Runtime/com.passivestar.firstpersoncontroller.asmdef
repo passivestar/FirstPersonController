@@ -1,0 +1,23 @@
+{
+    "name": "com.passivestar.firstpersoncontroller",
+    "rootNamespace": "",
+    "references": [
+        "Unity.InputSystem",
+        "Cinemachine"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.cinemachine",
+            "expression": "2.9.5",
+            "define": "USE_CINEMACHINE"
+        }
+    ],
+    "noEngineReferences": false
+}

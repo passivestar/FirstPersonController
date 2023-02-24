@@ -1,0 +1,20 @@
+{
+    "name": "com.passivestar.firstpersoncontroller",
+    "version": "0.1.0",
+    "displayName": "First Person Controller",
+    "description": "A general-purpose first-person controller",
+    "license": "See LICENSE.md",
+    "unity": "2022.1",
+    "dependencies": {
+        "com.unity.cinemachine": "2.8.9",
+        "com.unity.inputsystem": "1.4.4"
+    },
+    "keywords": [
+        "First-Person",
+        "Controller"
+    ],
+    "author": {
+        "name": "passivestar",
+        "url": "https://discord.gg/pPHQ5HQ"
+    }
+}

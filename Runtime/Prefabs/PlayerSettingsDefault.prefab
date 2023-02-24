@@ -1,0 +1,164 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3915524510468068774
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6453474144516907889}
+  - component: {fileID: 1080970698260219342}
+  m_Layer: 0
+  m_Name: PlayerSettingsDefault
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6453474144516907889
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3915524510468068774}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 21
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1080970698260219342
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3915524510468068774}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15e915c326d33b14b98662e35e46b890, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mass: 1
+  gravity: {x: 0, y: -9.8, z: 0}
+  movementFactorInterpolationSpeed: 3
+  worldBottomBoundary: -100
+  lockCursorOnStart: 1
+  inputEnabled: 1
+  lookEnabled: 1
+  mouseSensitivity: 3
+  invertLookY: 0
+  groundRaycastDistance: 0.02
+  platformRaycastDistance: 0.5
+  stickToGroundVelocity: 3
+  walkableGroundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  slideSpeedMultiplier: 1
+  rigidbodyColliderMargin: 0.15
+  rigidbodyPositionSpring: 15000
+  walkingSpeed: 4
+  walkingAcceleration: 10
+  midairAcceleration: 2
+  ceilingUnstickForce: 20
+  flyingSpeed: 4
+  flyingAcceleration: 10
+  swimmingSpeed: 4
+  swimmingAcceleration: 10
+  climbingSpeed: 4
+  climbingAcceleration: 10
+  jumpSpeed: 4
+  jumpPressBufferTime: 0.05
+  jumpGroundGraceTime: 0.2
+  maxJumps: 1
+  crouchHeight: 1
+  crouchTransitionSpeed: 10
+  crouchSpeedMultiplier: 0.5
+  crouchToggle: 0
+  sprintSpeedMultiplier: 1.8
+  lockInputOnInteract: 1
+  interactionMaxDistance: 3
+  interactionMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  useSendMessageForInteraction: 1
+  grabVelocity: 30
+  grabRotationSpeed: 0.2
+  throwForce: 10
+  grabMaxHoldDistance: 3
+  grabPositionOffset: {x: 0, y: 0, z: 2}
+  grabMassLimit: 20
+  grabMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  grabForceInterpolation: 1
+  footstepsVolumeMultiplier: 0.1
+  footstepsIntervalMultiplier: 0.5
+  footstepsMaxIntervalLimit: 0.6
+  footstepsMinIntervalLimit: 0.3
+  footstepsPitchRange: 0.5
+  footstepClips: []
+  landingMaxVolume: 0.4
+  landingVelocityThreshold: 0.5
+  windClip: {fileID: 0}
+  windVolumeMinSpeed: 10
+  windVolumeMaxSpeed: 100
+  windVolumeMaxLimit: 0.1
+  grabbingClip: {fileID: 0}
+  useHeadBobbing: 1
+  headBobbingVerticalAmplitudeMultiplier: 0.001
+  headBobbingHorizontalAmplitudeMultiplier: 0.003
+  headBobbingAngleAmplitudeMultiplier: 0.02
+  headBobbingFrequencyMultiplier: 1.3
+  headBobbingFrequencyLimit: 14
+  useInertia: 1
+  inertiaRestitutionRate: 12
+  inertiaSpeedThreshold: 2
+  inertiaPositionOffsetMultiplier: 0.1
+  inertiaAngleOffsetMultiplier: 0.7
+  inertiaUseRotation: 1
+  useRoll: 1
+  rollLateralFactor: 0.04
+  rollAngularFactor: 0.002
+  rollSpeed: 14
+  useFOV: 1
+  fovMultiplier: 1.15
+  fovInterpolationSpeed: 5
+  fovSpeedRemap:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.68785787
+      value: 0.25403994
+      inSlope: 1.1539657
+      outSlope: 1.1539657
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.19783722
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 3.486149
+      outSlope: 3.486149
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.12455937
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
