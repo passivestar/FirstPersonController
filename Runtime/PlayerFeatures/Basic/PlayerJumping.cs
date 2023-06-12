@@ -44,7 +44,10 @@ namespace FirstPersonController
         {
             player.onBeforeMove.RemoveListener(OnBeforeMove);
             player.onUngrounded.RemoveListener(OnUngrounded);
-            jumpAction.performed -= OnJump;
+            if (jumpAction != null)
+            {
+                jumpAction.performed -= OnJump;
+            }
         }
 
         void OnJump(InputAction.CallbackContext context)

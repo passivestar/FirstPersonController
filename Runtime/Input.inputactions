@@ -76,6 +76,15 @@
                     "processors": "",
                     "interactions": "Press(behavior=1)",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Flashlight",
+                    "type": "Button",
+                    "id": "c05c02b5-d213-412c-b458-11b8329f5916",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -227,8 +236,8 @@
                     "id": "8c8e490b-c610-4785-884f-f04217b23ca4",
                     "path": "<Pointer>/delta",
                     "interactions": "",
-                    "processors": "ScaleVector2(x=0.05,y=0.05)",
-                    "groups": ";Keyboard&Mouse;Touch",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse;Touch",
                     "action": "Look",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -367,6 +376,17 @@
                 },
                 {
                     "name": "",
+                    "id": "ad71faed-11c8-4d5d-a337-921f83b7e582",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Pause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "d98f3bea-c992-44ea-8f21-06fcf20b1293",
                     "path": "<Keyboard>/e",
                     "interactions": "",
@@ -406,6 +426,28 @@
                     "processors": "",
                     "groups": "Gamepad",
                     "action": "Crouch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1e3eefe8-d834-4430-bb44-3ea41a5f4c3b",
+                    "path": "<Keyboard>/f",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Flashlight",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "0e79adf9-331a-4265-8f19-10165ce972be",
+                    "path": "<Gamepad>/dpad/up",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Flashlight",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
@@ -509,6 +551,15 @@
                     "name": "Back",
                     "type": "Button",
                     "id": "3307bcad-dd7b-4dbc-8de8-5ea131dda479",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Unpause",
+                    "type": "Button",
+                    "id": "0769459f-6614-4cab-b985-0b053dbe78bf",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -793,6 +844,28 @@
                 },
                 {
                     "name": "",
+                    "id": "44adfd86-82dd-4694-b9de-5423ee03dd79",
+                    "path": "<Keyboard>/enter",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Submit",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b50fae30-f9c4-4a16-a7e5-97cbef6deb68",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Submit",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "82627dcc-3b13-4ba9-841d-e4b746d6553e",
                     "path": "*/{Cancel}",
                     "interactions": "",
@@ -881,6 +954,17 @@
                 },
                 {
                     "name": "",
+                    "id": "22c7777e-0845-436d-89a9-a08ca396e632",
+                    "path": "<Keyboard>/enter",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Click",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "38c99815-14ea-4617-8627-164d27641299",
                     "path": "<Mouse>/scroll",
                     "interactions": "",
@@ -947,12 +1031,34 @@
                 },
                 {
                     "name": "",
-                    "id": "b631a1a3-3f3a-4586-820a-5d0fbcf0aa03",
+                    "id": "2f6ec4b1-55ad-4950-a4cd-8d332cebfa26",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Back",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "50e31047-f0a4-41fa-b5a4-68175f8f64a2",
                     "path": "<Gamepad>/buttonEast",
                     "interactions": "",
                     "processors": "",
                     "groups": "Gamepad",
                     "action": "Back",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c426fe8c-64e8-484b-a2c5-fcc2898b543d",
+                    "path": "<Gamepad>/start",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Unpause",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

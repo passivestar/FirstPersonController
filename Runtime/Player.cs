@@ -6,6 +6,8 @@ namespace FirstPersonController
 {
     public class Player : MonoBehaviour
     {
+        public static Player Instance { get; private set; }
+
         public UnityEvent onBeforeMove;
         public UnityEvent<PlayerState> onStateChange;
 
@@ -34,12 +36,23 @@ namespace FirstPersonController
             set => controller.height = value;
         }
 
+        public PlayerSettings Settings
+        {
+            get => settings;
+            set => settings = value;
+        }
+
         internal float movementSpeedMultiplier;
 
-        PlayerState _currentState = PlayerState.Walking;
+        PlayerState currentState = PlayerState.Walking;
 
         [HideInInspector] public Vector3 velocity;
         Vector2 look;
+        
+        // Used to fix unity's delta weirdness
+        Vector2 previousLookDelta;
+        float previousLookUpdateTime;
+        float timeSinceCursorLock;
 
         (Vector3, Quaternion) initialPositionAndRotation;
 
@@ -81,6 +94,11 @@ namespace FirstPersonController
 
         void Awake()
         {
+            if (Instance == null)
+            {
+                Instance = this;
+            }
+
             controller = GetComponent<CharacterController>();
 
             playerInputInstance = Instantiate(playerInput);
@@ -241,7 +259,20 @@ namespace FirstPersonController
 
         void Update()
         {
-            _currentState.Update(this);
+            currentState.Update(this);
+            UpdateTimeSinceCursorLock();
+        }
+
+        void UpdateTimeSinceCursorLock()
+        {
+            if (Cursor.lockState == CursorLockMode.Locked)
+            {
+                timeSinceCursorLock += Time.unscaledDeltaTime;
+            }
+            else
+            {
+                timeSinceCursorLock = 0;
+            }
         }
 
         void FixedUpdate()
@@ -254,7 +285,7 @@ namespace FirstPersonController
             cameraEffectsHelper.transform.localEulerAngles = Vector3.zero;
 
             // Execute current state logic
-            _currentState.FixedUpdate(this);
+            currentState.FixedUpdate(this);
 
             // Interpolate movement factor
             var moving = controller.velocity.sqrMagnitude > .1f;
@@ -268,16 +299,16 @@ namespace FirstPersonController
 
         public void SetState(PlayerState state)
         {
-            if (_currentState != null)
+            if (currentState != null)
             {
-                _currentState.Exit(this);
+                currentState.Exit(this);
             }
-            _currentState = state;
+            currentState = state;
             state.Enter(this);
             onStateChange.Invoke(state);
         }
 
-        public PlayerState GetState() => _currentState;
+        public PlayerState GetState() => currentState;
 
         public void CheckBounds()
         {
@@ -429,7 +460,7 @@ namespace FirstPersonController
             input += referenceTransform.forward * moveInput.y;
             input += referenceTransform.right * moveInput.x;
 
-            if (IsVerticalMovementState(_currentState) && !horizontal)
+            if (IsVerticalMovementState(currentState) && !horizontal)
             {
                 var jumpValue = jumpAction.ReadValue<float>();
                 var crouchValue = crouchAction.ReadValue<float>();
@@ -452,28 +483,67 @@ namespace FirstPersonController
             return input;
         }
 
+        public float GetHorizontalLookSensitivity()
+        {
+            return playerInputInstance.currentControlScheme == "Keyboard&Mouse"
+                ? settings.lookSensitivity
+                : settings.gamepadHorizontalLookSensitivity;
+        }
+
+        public float GetVerticalLookSensitivity()
+        {
+            return playerInputInstance.currentControlScheme == "Keyboard&Mouse"
+                ? settings.lookSensitivity
+                : settings.gamepadVerticalLookSensitivity;
+        }
+
+        public Vector2 GetLookDelta()
+        {
+            var delta = lookAction.ReadValue<Vector2>() * 0.05f;
+            return new Vector2(
+                delta.x * GetHorizontalLookSensitivity(),
+                delta.y * GetVerticalLookSensitivity() * (settings.invertLookY ? -1 : 1)
+            );
+
+        }
+
         public void UpdateLook()
         {
-            if (Cursor.lockState != CursorLockMode.Locked)
+            // Skip input if recently locked to avoid a spike
+            if (Cursor.lockState != CursorLockMode.Locked || timeSinceCursorLock < .1f)
+                return;
+
+            // Skip the first non-zero delta after no input
+            // because it's a spike after the cursor is locked
+            var timeSinceLastInput = Time.realtimeSinceStartup - previousLookUpdateTime;
+            if (timeSinceLastInput > .5f)
             {
+                previousLookUpdateTime = Time.realtimeSinceStartup;
                 return;
             }
 
-            var delta = lookAction.ReadValue<Vector2>();
+            var delta = GetLookDelta();
 
-            if (delta.magnitude > 10f)
-            {
+            // Skip empty input
+            if (delta.sqrMagnitude == 0)
                 return;
-            }
 
-            var invertY = settings.invertLookY;
-            look.x += delta.x * settings.mouseSensitivity;
-            look.y += delta.y * settings.mouseSensitivity * (invertY ? -1f : 1f);
+            // Mitigate delta spikes
+            var deltaDifferenceSquared = (delta - previousLookDelta).sqrMagnitude;
+            if (deltaDifferenceSquared > 100f)
+                return;
 
-            look.y = Mathf.Clamp(look.y, -89f, 89f);
+            look.x += delta.x;
+            look.y += delta.y;
+
+            var pitchLimit = settings.lookPitchLimit;
+            look.y = Mathf.Clamp(look.y, -pitchLimit, pitchLimit);
 
             cameraHelper.transform.localRotation = Quaternion.Euler(-look.y, 0, 0);
             transform.localRotation = Quaternion.Euler(0, look.x + lookOffset, 0);
+
+            previousLookDelta = delta;
+            previousLookUpdateTime = Time.realtimeSinceStartup;
         }
     }
 }

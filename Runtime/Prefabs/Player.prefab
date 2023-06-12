@@ -61,7 +61,7 @@ MonoBehaviour:
   m_PivotOffset: {x: 0, y: 0, z: 0}
   m_AmplitudeGain: 0
   m_FrequencyGain: 0
-  mNoiseOffsets: {x: 0, y: 0, z: 0}
+  mNoiseOffsets: {x: -177.16135, y: -525.4712, z: 640.8093}
 --- !u!1 &4960232603590620095
 GameObject:
   m_ObjectHideFlags: 0
@@ -77,6 +77,7 @@ GameObject:
   - component: {fileID: 5092195485354824029}
   - component: {fileID: 6519824598582324696}
   - component: {fileID: 4161827768607575455}
+  - component: {fileID: 7927164529821800079}
   - component: {fileID: 858150078501797304}
   - component: {fileID: 3760011768497875093}
   - component: {fileID: 4904003973292766670}
@@ -104,7 +105,7 @@ Transform:
   m_Children:
   - {fileID: 3554668229508314264}
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!143 &4187134732670962609
 CharacterController:
@@ -128,7 +129,7 @@ CharacterController:
   m_Height: 2
   m_Radius: 0.4
   m_SlopeLimit: 45
-  m_StepOffset: 0.4
+  m_StepOffset: 0.1
   m_SkinWidth: 0.001
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
@@ -236,6 +237,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e927b39cb2a6f2a4e83142981c1f7bfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &7927164529821800079
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4960232603590620095}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d84c14e9424cd040b25c6aa4450d6bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  shakeData: {fileID: 0}
 --- !u!114 &858150078501797304
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -260,25 +274,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e4e33258a4e20249b4adcf82a50752a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  onPlayerLookAt:
+  onLookAt:
     m_PersistentCalls:
       m_Calls: []
-  onPlayerLookAway:
+  onLookAway:
     m_PersistentCalls:
       m_Calls: []
-  onPlayerInteractStarted:
+  onStarted:
     m_PersistentCalls:
       m_Calls: []
-  onPlayerInteractMove:
+  onDrag:
     m_PersistentCalls:
       m_Calls: []
-  onPlayerInteractPerformed:
+  onPerformed:
     m_PersistentCalls:
       m_Calls: []
-  onPlayerInteractStartedNoHit:
+  onStartedNoHit:
     m_PersistentCalls:
       m_Calls: []
-  onPlayerInteractPerformedNoHit:
+  onPerformedNoHit:
     m_PersistentCalls:
       m_Calls: []
 --- !u!114 &4904003973292766670
@@ -293,19 +307,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e84868cbdc4a4bc42865bc2efd9d41b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  onGameObjectGrabbableLookAt:
+  onGrabbableLookAt:
     m_PersistentCalls:
       m_Calls: []
-  onGameObjectGrabbableLookAway:
+  onGrabbableLookAway:
     m_PersistentCalls:
       m_Calls: []
-  onGameObjectGrabbed:
+  onGrabbed:
     m_PersistentCalls:
       m_Calls: []
-  onGameObjectReleased:
+  onReleased:
     m_PersistentCalls:
       m_Calls: []
-  onGameObjectDestroyed:
+  onDestroyed:
     m_PersistentCalls:
       m_Calls: []
 --- !u!114 &3853021230780654759
@@ -369,8 +383,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5263709495807344492}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.68, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.68000007, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

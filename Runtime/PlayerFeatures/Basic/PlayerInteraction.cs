@@ -7,13 +7,13 @@ namespace FirstPersonController
     [RequireComponent(typeof(Player))]
     public class PlayerInteraction : MonoBehaviour
     {
-        public UnityEvent<GameObject, RaycastHit> onPlayerLookAt;
-        public UnityEvent<GameObject> onPlayerLookAway;
-        public UnityEvent<GameObject, RaycastHit> onPlayerInteractStarted;
-        public UnityEvent<GameObject, RaycastHit, Vector2, Vector2> onPlayerInteractMove;
-        public UnityEvent<GameObject, RaycastHit> onPlayerInteractPerformed;
-        public UnityEvent onPlayerInteractStartedNoHit;
-        public UnityEvent onPlayerInteractPerformedNoHit;
+        public UnityEvent<GameObject, RaycastHit> onLookAt;
+        public UnityEvent<GameObject> onLookAway;
+        public UnityEvent<GameObject, RaycastHit> onStarted;
+        public UnityEvent<GameObject, RaycastHit, Vector2, Vector2> onDrag;
+        public UnityEvent<GameObject, RaycastHit> onPerformed;
+        public UnityEvent onStartedNoHit;
+        public UnityEvent onPerformedNoHit;
 
         Player player;
         PlayerInput playerInputInstance;
@@ -54,8 +54,11 @@ namespace FirstPersonController
         void OnDisable()
         {
             player.onBeforeMove.RemoveListener(OnBeforeMove);
-            interactAction.started -= OnInteractStarted;
-            interactAction.performed -= OnInteractPerformed;
+            if (interactAction != null)
+            {
+                interactAction.started -= OnInteractStarted;
+                interactAction.performed -= OnInteractPerformed;
+            }
         }
 
         void Update()
@@ -63,33 +66,25 @@ namespace FirstPersonController
             if (isActive)
             {
                 var delta = lookAction.ReadValue<Vector2>();
-                if (delta.magnitude > 10f) return;
+                if (delta.magnitude > 10f)
+                    return;
 
-                var invertY = player.settings.invertLookY;
-                totalDelta.x += delta.x * player.settings.mouseSensitivity;
-                totalDelta.y += delta.y * player.settings.mouseSensitivity * (invertY ? -1f : 1f);
+                var lookDelta = player.GetLookDelta();
+                totalDelta.x += lookDelta.x;
+                totalDelta.y += lookDelta.y;
 
                 if (hitCollider == null)
-                {
                     return;
-                }
-
-                onPlayerInteractMove.Invoke(hitCollider.gameObject, hit, delta, totalDelta);
-                if (player.settings.useSendMessageForInteraction)
-                {
-                    hitCollider.gameObject.SendMessage(
-                        "OnPlayerInteractMove",
-                        (hit, delta, totalDelta),
-                        SendMessageOptions.DontRequireReceiver
-                    );
-                }
+ 
+                NotifyMove(hitCollider.gameObject, hit, delta, totalDelta);
             }
         }
 
         void OnBeforeMove()
         {
             // Don't cast rays while holding interact
-            if (isActive) return;
+            if (isActive)
+                return;
 
             var from = player.cameraHelper.transform.position;
             var direction = player.cameraHelper.transform.forward;
@@ -100,34 +95,16 @@ namespace FirstPersonController
                 {
                     if (hitCollider != null)
                     {
-                        SendLookAway(hitCollider.gameObject);
+                        NotifyLookAway(hitCollider.gameObject);
                     }
-                    SendLookAt(hit.collider.gameObject);
+                    NotifyLookAt(hit.collider.gameObject);
                     hitCollider = hit.collider;
                 }
             }
             else if (hitCollider != null)
             {
-                SendLookAway(hitCollider.gameObject);
+                NotifyLookAway(hitCollider.gameObject);
                 hitCollider = null;
-            }
-        }
-
-        void SendLookAt(GameObject target)
-        {
-            onPlayerLookAt.Invoke(target, hit);
-            if (player.settings.useSendMessageForInteraction)
-            {
-                target.SendMessage("OnPlayerInteractLookAt", hit, SendMessageOptions.DontRequireReceiver);
-            }
-        }
-
-        void SendLookAway(GameObject target)
-        {
-            onPlayerLookAway.Invoke(target);
-            if (player.settings.useSendMessageForInteraction)
-            {
-                target.SendMessage("OnPlayerInteractLookAway", SendMessageOptions.DontRequireReceiver);
             }
         }
 
@@ -137,21 +114,11 @@ namespace FirstPersonController
             {
                 isActive = true;
                 totalDelta = Vector2.zero;
-
-                if (player.settings.lockInputOnInteract)
-                {
-                    player.settings.inputEnabled = false;
-                }
-
-                onPlayerInteractStarted.Invoke(hitCollider.gameObject, hit);
-                if (player.settings.useSendMessageForInteraction)
-                {
-                    hitCollider.gameObject.SendMessage("OnPlayerInteractStarted", hit, SendMessageOptions.DontRequireReceiver);
-                }
+                NotifyStarted(hitCollider.gameObject);
             }
             else
             {
-                onPlayerInteractStartedNoHit.Invoke();
+                onStartedNoHit.Invoke();
             }
         }
 
@@ -159,22 +126,62 @@ namespace FirstPersonController
         {
             isActive = false;
 
-            if (player.settings.lockInputOnInteract)
-            {
-                player.settings.inputEnabled = true;
-            }
-
             if (hitCollider != null)
             {
-                onPlayerInteractPerformed.Invoke(hitCollider.gameObject, hit);
-                if (player.settings.useSendMessageForInteraction)
-                {
-                    hitCollider.gameObject.SendMessage("OnPlayerInteractPerformed", hit, SendMessageOptions.DontRequireReceiver);
-                }
+                NotifyPerformed(hitCollider.gameObject, hit);
             }
             else
             {
-                onPlayerInteractPerformedNoHit.Invoke();
+                onPerformedNoHit.Invoke();
+            }
+        }
+
+        void NotifyLookAt(GameObject target)
+        {
+            if (target.TryGetComponent<PlayerInteractable>(out var interactable))
+            {
+                onLookAt.Invoke(target, hit);
+                interactable.onLookAt.Invoke(hit);
+            }
+        }
+
+        void NotifyLookAway(GameObject target)
+        {
+            if (target.TryGetComponent<PlayerInteractable>(out var interactable))
+            {
+                onLookAway.Invoke(target);
+                interactable.onLookAway.Invoke();
+            }
+        }
+
+        void NotifyStarted(GameObject target)
+        {
+            if (target.TryGetComponent<PlayerInteractable>(out var interactable))
+            {
+                if (interactable.lockInputOnInteract)
+                    player.settings.inputEnabled = false;
+                onStarted.Invoke(target, hit);
+                interactable.onStarted.Invoke(hit);
+            }
+        }
+
+        void NotifyPerformed(GameObject target, RaycastHit hit)
+        {
+            if (target.TryGetComponent<PlayerInteractable>(out var interactable))
+            {
+                if (interactable.lockInputOnInteract)
+                    player.settings.inputEnabled = true;
+                onPerformed.Invoke(target, hit);
+                interactable.onPerformed.Invoke(hit);
+            }
+        }
+
+        void NotifyMove(GameObject target, RaycastHit hit, Vector2 delta, Vector2 totalDelta)
+        {
+            if (target.TryGetComponent<PlayerInteractable>(out var interactable))
+            {
+                onDrag.Invoke(target, hit, delta, totalDelta);
+                interactable.onDrag.Invoke(hit, delta, totalDelta);
             }
         }
     }

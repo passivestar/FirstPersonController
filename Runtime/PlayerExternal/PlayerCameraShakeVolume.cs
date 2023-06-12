@@ -25,7 +25,7 @@ namespace FirstPersonController
         public PlayerCameraShakeVolumes playerCameraShakeVolumes;
         public PlayerCameraShakeSettings settings = new();
 
-        // We have to store a list of PlayerCameraShakeVolumes components because because
+        // We have to store a list of PlayerCameraShakeVolumes components because
         // OnTriggerExit is not called when this volume is destroyed
         List<PlayerCameraShakeVolumes> playerCameraShakeVolumesList = new();
 

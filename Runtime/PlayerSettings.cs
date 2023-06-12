@@ -25,6 +25,12 @@ namespace FirstPersonController
         [Tooltip("Automatically lock the cursor on start")]
         public bool lockCursorOnStart = true;
 
+        [Range(40f, 90f), Tooltip("Field of view")]
+        public float fieldOfView = 60f;
+
+        [Range(0, 89.9f), Tooltip("Look pitch limit")]
+        public float lookPitchLimit = 89f;
+
         // =================================================================
         [Header("Input")]
         // =================================================================
@@ -36,7 +42,13 @@ namespace FirstPersonController
         public bool lookEnabled = true;
 
         [Tooltip("Mouse sensitivity")]
-        public float mouseSensitivity = 3f;
+        public float lookSensitivity = 4f;
+
+        [Tooltip("Gamepad horizontal look sensitivity")]
+        public float gamepadHorizontalLookSensitivity = 20f;
+
+        [Tooltip("Gamepad vertical look sensitivity")]
+        public float gamepadVerticalLookSensitivity = 20f;
 
         [Tooltip("Invert look Y")]
         public bool invertLookY = false;
@@ -159,17 +171,11 @@ namespace FirstPersonController
         [Header("Interaction")]
         // =================================================================
 
-        [Tooltip("Prevent player from looking around and moving when dragging with interact")]
-        public bool lockInputOnInteract = true;
-
         [Tooltip("Only allow interaction if an object is closer than this distance")]
         public float interactionMaxDistance = 3f;
 
         [Tooltip("Only allow interaction if an object matches the mask")]
         public LayerMask interactionMask = ~0; // All layers
-
-        [Tooltip("Use SendMessage to notify objects when player is interacting with them")]
-        public bool useSendMessageForInteraction = true;
 
         // =================================================================
         [Header("Grabbing")]
@@ -218,6 +224,22 @@ namespace FirstPersonController
         [Tooltip("Pitch range for the randomizer")]
         public float footstepsPitchRange = .5f;
 
+
+        [Tooltip("Volume multiplier for the climbing sounds")]
+        public float climbingVolumeMultiplier = .1f;
+
+        [Tooltip("Determines the interval between climbing sounds")]
+        public float climbingIntervalMultiplier = 2f;
+
+        [Tooltip("Maximum interval between climbing sounds")]
+        public float climbingMaxIntervalLimit = .6f;
+
+        [Tooltip("Minimum interval between climbing sounds")]
+        public float climbingMinIntervalLimit = .3f;
+
+        [Tooltip("Pitch rangge for the climbing sounds")]
+        public float climbingPitchRange = .5f;
+
         [Serializable]
         public class AudioClipListByMaterials
         {
@@ -228,11 +250,11 @@ namespace FirstPersonController
         [Tooltip("An object holding references to all of the sound clips")]
         public List<AudioClipListByMaterials> footstepClips;
 
+        [Tooltip("A list with all of the climbing clips")]
+        public List<AudioClip> climbingClips;
+
         [Tooltip("Maximum volume when landing")]
         public float landingMaxVolume = .4f;
-
-        [Tooltip("Velocity threshold to determine landing")]
-        public float landingVelocityThreshold = .5f;
 
         [Tooltip("Wind clip to play when moving fast")]
         public AudioClip windClip;
@@ -248,6 +270,28 @@ namespace FirstPersonController
 
         [Tooltip("A clip to play when grabbing an object")]
         public AudioClip grabbingClip;
+
+        // =================================================================
+        [Header("Data-Driven Camera Shake")]
+        // =================================================================
+
+        [Tooltip("Apply data-driven camera shake")]
+        public bool useDataDrivenCameraShake = true;
+
+        [Tooltip("Data-driven camera shake speed multiplier")]
+        public float dataDrivenCameraShakeSpeedMultiplier = 1f;
+
+        [Tooltip("Data-driven camera shake amplitude multiplier")]
+        public float dataDrivenCameraShakeAmplitudeMultiplier = 1f;
+
+        [Tooltip("Data-driven camera shake rotation amplitude multiplier")]
+        public float dataDrivenCameraShakeRotationAmplitudeMultiplier = 1f;
+
+        [Tooltip("Data-driven camera shake speed factor remap")]
+        public AnimationCurve dataDrivenCameraShakeSpeedFactorRemap = AnimationCurve.EaseInOut(0, 0, 1, 1);
+
+        [Tooltip("Data-driven camera shake data")]
+        public ShakeDataSO dataDrivenCameraShakeData;
 
         // =================================================================
         [Header("Camera Effects")]

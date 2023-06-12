@@ -8,6 +8,7 @@ namespace FirstPersonController
     public class PlayerSound : MonoBehaviour
     {
         List<AudioClip> defaultFootstepSounds;
+        List<AudioClip> climbingSounds;
         AudioSource source;
         AudioSource bodySource;
         AudioSource windSource;
@@ -16,13 +17,16 @@ namespace FirstPersonController
         float footstepsVolume;
         float previousVelocityY;
 
+        float climbingInterval;
+        float climbingVolume;
+
         float groundFactor = 0f;
         float groundFactorInterpolationSpeed = 30f;
 
         PlayerGrabbing playerGrabbing;
 
         IEnumerator footstepsCoroutine;
-        IEnumerator ladderCoroutine;
+        IEnumerator climbingCoroutine;
 
         Player player;
 
@@ -30,6 +34,8 @@ namespace FirstPersonController
         {
             player = GetComponent<Player>();
             source = gameObject.AddComponent<AudioSource>();
+            source.spatialBlend = 1f;
+
             bodySource = gameObject.AddComponent<AudioSource>();
 
             defaultFootstepSounds = GetAudioClipsByMaterial(null);
@@ -44,19 +50,22 @@ namespace FirstPersonController
         void OnEnable()
         {
             player.onGroundStateChange.AddListener(OnGroundStateChange);
+            player.onStateChange.AddListener(OnStateChange);
 
             if (gameObject.TryGetComponent<PlayerGrabbing>(out playerGrabbing))
             {
-                playerGrabbing.onGameObjectGrabbed.AddListener(OnGameObjectGrabbed);
+                playerGrabbing.onGrabbed.AddListener(OnGameObjectGrabbed);
             }
         }
 
         void OnDisable()
         {
             player.onGroundStateChange.RemoveListener(OnGroundStateChange);
+            player.onStateChange.RemoveListener(OnStateChange);
+
             if (playerGrabbing != null)
             {
-                playerGrabbing.onGameObjectGrabbed.RemoveListener(OnGameObjectGrabbed);
+                playerGrabbing.onGrabbed.RemoveListener(OnGameObjectGrabbed);
             }
         }
 
@@ -73,12 +82,32 @@ namespace FirstPersonController
             {
                 footstepsCoroutine = FootstepsLoop();
                 StartCoroutine(footstepsCoroutine);
+
+                // Play landing sound
+                var vol = Util.MapRange(previousVelocityY, 0, -4f, 0, player.settings.landingMaxVolume);
+                PlayFootstepSound(vol);
             }
             else
             {
                 if (footstepsCoroutine != null)
                 {
                     StopCoroutine(footstepsCoroutine);
+                }
+            }
+        }
+
+        void OnStateChange(PlayerState state)
+        {
+            if (state is PlayerStateClimbing)
+            {
+                climbingCoroutine = ClimbingLoop();
+                StartCoroutine(climbingCoroutine);
+            }
+            else
+            {
+                if (climbingCoroutine != null)
+                {
+                    StopCoroutine(climbingCoroutine);
                 }
             }
         }
@@ -119,14 +148,53 @@ namespace FirstPersonController
 
             if (list != null)
             {
-                source.clip = list[Random.Range(0, list.Count)];
+                // Find a new unique clip
+                var newClip = list[Random.Range(0, list.Count)];
+                while (newClip == source.clip)
+                {
+                    newClip = list[Random.Range(0, list.Count)];
+                }
+
+                source.clip = newClip;
                 source.pitch = 1 + Random.Range(-player.settings.footstepsPitchRange / 2, player.settings.footstepsPitchRange / 2);
                 source.volume = volume;
                 source.Play();
             }
         }
 
+        IEnumerator ClimbingLoop()
+        {
+            while (true)
+            {
+                yield return new WaitForSeconds(climbingInterval);
+                if (climbingVolume > 0)
+                {
+                    PlayClimbingSound(climbingVolume);
+                }
+            }
+        }
+
+        void PlayClimbingSound(float volume)
+        {
+            var list = player.settings.climbingClips;
+
+            if (list != null)
+            {
+                source.clip = list[Random.Range(0, list.Count)];
+                source.pitch = 1 + Random.Range(-player.settings.climbingPitchRange / 2, player.settings.climbingPitchRange / 2);
+                source.volume = volume;
+                source.Play();
+            }
+        }
+
         void FixedUpdate()
+        {
+            UpdateFootstepsValues();
+            UpdateClimbingValues();
+            UpdateWindValues();
+        }
+
+        void UpdateFootstepsValues()
         {
             var horizontalSpeed = Vector3.ProjectOnPlane(player.controller.velocity, Vector3.up).magnitude;
 
@@ -136,17 +204,6 @@ namespace FirstPersonController
                 player.IsGrounded ? 1 : 0,
                 Time.deltaTime * groundFactorInterpolationSpeed
             );
-
-            // Detect landing
-            if (
-                player.IsGrounded
-                && Mathf.Abs(player.controller.velocity.y) < .2f
-                && previousVelocityY < -player.settings.landingVelocityThreshold
-            )
-            {
-                var vol = Util.MapRange(previousVelocityY, 0, -4f, 0, player.settings.landingMaxVolume);
-                PlayFootstepSound(vol);
-            }
 
             footstepsVolume = horizontalSpeed
                 * player.settings.footstepsVolumeMultiplier
@@ -162,6 +219,27 @@ namespace FirstPersonController
                 player.settings.footstepsMaxIntervalLimit
             );
 
+            previousVelocityY = player.controller.velocity.y;
+        }
+
+        void UpdateClimbingValues()
+        {
+            var verticalSpeed = Mathf.Abs(player.controller.velocity.y);
+
+            climbingVolume = verticalSpeed
+                * player.settings.climbingVolumeMultiplier
+                * player.movementFactor;
+
+            climbingInterval = Mathf.Clamp
+            (
+                1 / (verticalSpeed * player.settings.climbingIntervalMultiplier),
+                player.settings.climbingMinIntervalLimit,
+                player.settings.climbingMaxIntervalLimit
+            );
+        }
+
+        void UpdateWindValues()
+        {
             var speed = player.groundObjectRigidbody != null
                 ? player.groundVelocity.magnitude
                 : player.controller.velocity.magnitude;
@@ -174,8 +252,6 @@ namespace FirstPersonController
                 0,
                 player.settings.windVolumeMaxLimit
             );
-
-            previousVelocityY = player.controller.velocity.y;
         }
     }
 }

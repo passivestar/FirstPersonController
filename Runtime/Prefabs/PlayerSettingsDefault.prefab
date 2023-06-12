@@ -48,10 +48,14 @@ MonoBehaviour:
   gravity: {x: 0, y: -9.8, z: 0}
   movementFactorInterpolationSpeed: 3
   worldBottomBoundary: -100
-  lockCursorOnStart: 1
+  lockCursorOnStart: 0
+  fieldOfView: 60
+  lookPitchLimit: 89
   inputEnabled: 1
   lookEnabled: 1
-  mouseSensitivity: 3
+  lookSensitivity: 4
+  gamepadHorizontalLookSensitivity: 20
+  gamepadVerticalLookSensitivity: 20
   invertLookY: 0
   groundRaycastDistance: 0.02
   platformRaycastDistance: 0.5
@@ -63,7 +67,7 @@ MonoBehaviour:
   rigidbodyColliderMargin: 0.15
   rigidbodyPositionSpring: 15000
   walkingSpeed: 4
-  walkingAcceleration: 10
+  walkingAcceleration: 8
   midairAcceleration: 2
   ceilingUnstickForce: 20
   flyingSpeed: 4
@@ -81,12 +85,10 @@ MonoBehaviour:
   crouchSpeedMultiplier: 0.5
   crouchToggle: 0
   sprintSpeedMultiplier: 1.8
-  lockInputOnInteract: 1
   interactionMaxDistance: 3
   interactionMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  useSendMessageForInteraction: 1
   grabVelocity: 30
   grabRotationSpeed: 0.2
   throwForce: 10
@@ -102,14 +104,49 @@ MonoBehaviour:
   footstepsMaxIntervalLimit: 0.6
   footstepsMinIntervalLimit: 0.3
   footstepsPitchRange: 0.5
+  climbingVolumeMultiplier: 0.1
+  climbingIntervalMultiplier: 0.5
+  climbingMaxIntervalLimit: 0.6
+  climbingMinIntervalLimit: 0.3
+  climbingPitchRange: 0.5
   footstepClips: []
+  climbingClips: []
   landingMaxVolume: 0.4
-  landingVelocityThreshold: 0.5
   windClip: {fileID: 0}
   windVolumeMinSpeed: 10
   windVolumeMaxSpeed: 100
   windVolumeMaxLimit: 0.1
   grabbingClip: {fileID: 0}
+  useDataDrivenCameraShake: 1
+  dataDrivenCameraShakeSpeedMultiplier: 2
+  dataDrivenCameraShakeAmplitudeMultiplier: 0.2
+  dataDrivenCameraShakeRotationAmplitudeMultiplier: 2
+  dataDrivenCameraShakeSpeedFactorRemap:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 1.0129198
+      outSlope: 1.0129198
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.07312925
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 3.0512834
+      outSlope: 3.0512834
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.047619045
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  dataDrivenCameraShakeData: {fileID: 11400000, guid: 7f10fbd47f5ce9d40b74574d238a6a07,
+    type: 2}
   useHeadBobbing: 1
   headBobbingVerticalAmplitudeMultiplier: 0.001
   headBobbingHorizontalAmplitudeMultiplier: 0.003

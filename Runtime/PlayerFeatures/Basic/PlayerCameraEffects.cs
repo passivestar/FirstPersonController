@@ -22,7 +22,7 @@ namespace FirstPersonController
 #else
         Camera regularCamera;
 #endif
-        float initialFOV;
+        // float initialFOV;
         float currentFOV;
 
         void Awake()
@@ -37,12 +37,13 @@ namespace FirstPersonController
             cameraEffectsHelper = player.cameraEffectsHelper;
 #if USE_CINEMACHINE
             cinemachineCamera = player.cameraObject.GetComponent<Cinemachine.CinemachineVirtualCamera>();
-            initialFOV = cinemachineCamera.m_Lens.FieldOfView;
+            // initialFOV = cinemachineCamera.m_Lens.FieldOfView;
 #else
             regularCamera = player.cameraObject.GetComponent<Camera>();
-            initialFOV = regularCamera.fieldOfView;
+            // initialFOV = regularCamera.fieldOfView;
 #endif
-            currentFOV = initialFOV;
+            // currentFOV = initialFOV;
+            currentFOV = player.settings.fieldOfView;
         }
 
         void UpdateHeadBobbing(float horizontalSpeed)
@@ -102,7 +103,7 @@ namespace FirstPersonController
             inertiaTargetOffsetRotation = Quaternion.Slerp(inertiaTargetOffsetRotation, Quaternion.identity, factor);
 
             // Actual offset. Interpolating twice here to
-            // make it look smooth when we set it each fram
+            // make it look smooth when we set it each frame
             inertiaOffsetPosition = Vector3.Lerp(inertiaOffsetPosition, inertiaTargetOffsetPosition, factor);
 
             // Clamp magnitude to prevent camera going through walls and ceilings
@@ -145,9 +146,11 @@ namespace FirstPersonController
         {
             var maxSpeed = player.settings.walkingSpeed * player.settings.sprintSpeedMultiplier;
 
+            var baseFOV = player.settings.fieldOfView;
+
             var targetFOV = Mathf.Lerp(
-                initialFOV,
-                initialFOV * player.settings.fovMultiplier,
+                baseFOV,
+                baseFOV * player.settings.fovMultiplier,
                 player.settings.fovSpeedRemap.Evaluate(speed / maxSpeed)
             );
 

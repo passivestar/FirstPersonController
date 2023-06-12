@@ -51,7 +51,10 @@ namespace FirstPersonController
         void OnDisable()
         {
             player.onBeforeMove.RemoveListener(OnBeforeMove);
-            crouchAction.performed -= OnCrouch;
+            if (crouchAction != null)
+            {
+                crouchAction.performed -= OnCrouch;
+            }
         }
 
         void OnCrouch(InputAction.CallbackContext context)

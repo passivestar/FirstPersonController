@@ -7,11 +7,11 @@ namespace FirstPersonController
     [RequireComponent(typeof(Player)), RequireComponent(typeof(PlayerInteraction))]
     public class PlayerGrabbing : MonoBehaviour
     {
-        public UnityEvent<GameObject> onGameObjectGrabbableLookAt;
-        public UnityEvent<GameObject> onGameObjectGrabbableLookAway;
-        public UnityEvent<GameObject, Rigidbody> onGameObjectGrabbed;
-        public UnityEvent<GameObject, Rigidbody> onGameObjectReleased;
-        public UnityEvent onGameObjectDestroyed;
+        public UnityEvent<GameObject> onGrabbableLookAt;
+        public UnityEvent<GameObject> onGrabbableLookAway;
+        public UnityEvent<GameObject, Rigidbody> onGrabbed;
+        public UnityEvent<GameObject, Rigidbody> onReleased;
+        public UnityEvent onDestroyed;
 
         Player player;
         PlayerInteraction playerInteraction;
@@ -25,6 +25,7 @@ namespace FirstPersonController
 
         float grabbedObjectInitialMass;
         float grabbedObjectInitialAngualDrag;
+
         RigidbodyInterpolation grabbedObjectInitialInterpolation;
         CollisionDetectionMode grabbedObjectInitialCollisionDetectionMode;
         Quaternion grabbedObjectRotationOffset;
@@ -47,10 +48,10 @@ namespace FirstPersonController
         void OnEnable()
         {
             player.onBeforeMove.AddListener(OnBeforeMove);
-            playerInteraction.onPlayerLookAt.AddListener(OnLookAt);
-            playerInteraction.onPlayerLookAway.AddListener(OnLookAway);
-            playerInteraction.onPlayerInteractStarted.AddListener(OnInteractStarted);
-            playerInteraction.onPlayerInteractStartedNoHit.AddListener(OnInteractStartedNoHit);
+            playerInteraction.onLookAt.AddListener(OnLookAt);
+            playerInteraction.onLookAway.AddListener(OnLookAway);
+            playerInteraction.onStarted.AddListener(OnInteractStarted);
+            playerInteraction.onStartedNoHit.AddListener(OnInteractStartedNoHit);
             if (playerInputInstance != null)
             {
                 fireAction.performed += Throw;
@@ -61,11 +62,15 @@ namespace FirstPersonController
         void OnDisable()
         {
             player.onBeforeMove.RemoveListener(OnBeforeMove);
-            playerInteraction.onPlayerLookAt.RemoveListener(OnLookAt);
-            playerInteraction.onPlayerLookAway.RemoveListener(OnLookAway);
-            playerInteraction.onPlayerInteractStarted.RemoveListener(OnInteractStarted);
-            playerInteraction.onPlayerInteractStartedNoHit.RemoveListener(OnInteractStartedNoHit);
-            fireAction.performed -= Throw;
+            playerInteraction.onLookAt.RemoveListener(OnLookAt);
+            playerInteraction.onLookAway.RemoveListener(OnLookAway);
+            playerInteraction.onStarted.RemoveListener(OnInteractStarted);
+            playerInteraction.onStartedNoHit.RemoveListener(OnInteractStartedNoHit);
+
+            if (fireAction != null)
+            {
+                fireAction.performed -= Throw;
+            }
 
             player.rigidbodyObject.GetComponent<CollisionEvents>().onCollisionStay -= OnRigidbodyCollisionStay;
         }
@@ -85,11 +90,10 @@ namespace FirstPersonController
             if (CanGrab(gameObject, hit))
             {
                 lookedAtGrabbableObject = gameObject;
-                onGameObjectGrabbableLookAt.Invoke(gameObject);
-                if (player.settings.useSendMessageForInteraction)
-                {
-                    gameObject.SendMessage("OnPlayerGrabbableLookAt", SendMessageOptions.DontRequireReceiver);
-                }
+                onGrabbableLookAt.Invoke(gameObject);
+
+                if (gameObject.TryGetComponent<PlayerGrabbable>(out var playerGrabbable))
+                    playerGrabbable.onLookAt.Invoke();
             }
         }
 
@@ -97,11 +101,9 @@ namespace FirstPersonController
         {
             if (lookedAtGrabbableObject != null)
             {
-                onGameObjectGrabbableLookAway.Invoke(gameObject);
-                if (player.settings.useSendMessageForInteraction)
-                {
-                    gameObject.SendMessage("OnPlayerGrabbableLookAway", SendMessageOptions.DontRequireReceiver);
-                }
+                onGrabbableLookAway.Invoke(gameObject);
+                if (gameObject.TryGetComponent<PlayerGrabbable>(out var playerGrabbable))
+                    playerGrabbable.onLookAway.Invoke();
                 lookedAtGrabbableObject = null;
             }
         }
@@ -157,7 +159,7 @@ namespace FirstPersonController
                     )
                 );
 
-                grabbedObjectRigidbody.mass /= 20f;
+                grabbedObjectRigidbody.mass /= 10f;
                 grabbedObjectRigidbody.angularDrag = 20f;
 
                 if (player.settings.grabForceInterpolation)
@@ -169,11 +171,9 @@ namespace FirstPersonController
                 grabbedObjectInitialCollisionDetectionMode = grabbedObjectRigidbody.collisionDetectionMode;
                 grabbedObjectRigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
 
-                onGameObjectGrabbed.Invoke(grabbedObject, grabbedObjectRigidbody);
-                if (player.settings.useSendMessageForInteraction)
-                {
-                    grabbedObject.SendMessage("OnPlayerGrabbed", SendMessageOptions.DontRequireReceiver);
-                }
+                onGrabbed.Invoke(grabbedObject, grabbedObjectRigidbody);
+                if (grabbedObject.TryGetComponent<PlayerGrabbable>(out var playerGrabbable))
+                    playerGrabbable.onGrabbed.Invoke();
             }
         }
 
@@ -181,11 +181,9 @@ namespace FirstPersonController
         {
             if (isHolding)
             {
-                onGameObjectReleased.Invoke(grabbedObject, grabbedObjectRigidbody);
-                if (player.settings.useSendMessageForInteraction)
-                {
-                    grabbedObject.SendMessage("OnPlayerReleased", SendMessageOptions.DontRequireReceiver);
-                }
+                onReleased.Invoke(grabbedObject, grabbedObjectRigidbody);
+                if (grabbedObject.TryGetComponent<PlayerGrabbable>(out var playerGrabbable))
+                    playerGrabbable.onReleased.Invoke();
 
                 grabbedObjectRigidbody.mass = grabbedObjectInitialMass;
                 grabbedObjectRigidbody.angularDrag = grabbedObjectInitialAngualDrag;
@@ -232,8 +230,21 @@ namespace FirstPersonController
 
                 var directionToGrabPosition = grabPosition - grabbedObject.transform.position;
                 var distanceToGrabPosition = directionToGrabPosition.magnitude;
+                var distanceToGrabPositionUnclamped = distanceToGrabPosition;
 
-                if (distanceToGrabPosition > player.settings.grabMaxHoldDistance)
+                // Cast a ray from the object to grab position to check if there is a wall in between
+                var ray = new Ray(grabbedObject.transform.position, directionToGrabPosition);
+                var mask = player.settings.grabMask;
+                var hit = Physics.RaycastAll(ray, distanceToGrabPosition, mask, QueryTriggerInteraction.Ignore);
+                if (hit.Length > 0 && hit[0].collider.gameObject != grabbedObject)
+                {
+                    // Set the grab position to the hit point
+                    grabPosition = hit[0].point;
+                    directionToGrabPosition = grabPosition - grabbedObject.transform.position;
+                    distanceToGrabPosition = directionToGrabPosition.magnitude;
+                }
+
+                if (distanceToGrabPositionUnclamped > player.settings.grabMaxHoldDistance)
                 {
                     StopHolding();
                     return;
@@ -249,7 +260,7 @@ namespace FirstPersonController
             else if (isHolding)
             {
                 isHolding = false;
-                onGameObjectDestroyed.Invoke();
+                onDestroyed.Invoke();
             }
         }
 
